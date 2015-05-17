@@ -1,0 +1,29 @@
+FROM ynishi/stackage:2.8
+MAINTAINER Yutaka Nishimura
+
+#
+# yesod 1.4.1.5 
+#
+
+# install build tools 
+RUN ["cabal", "install", "alex", "happy", "yesod-bin"]
+
+# yesod library install
+WORKDIR /root/
+RUN echo "scaffolding\ns" | yesod init 
+WORKDIR /root/scaffolding
+RUN ["cabal", "install", "--only-dependencies", "--enable-tests", "--max-backjumps=-1", "--reorder-goals", "-j"]
+
+# prepare project dir
+RUN ["mkdir", "/yesod"]
+WORKDIR /yesod 
+
+EXPOSE 3000
+
+# by default, run developer mode(if it is needed, build automatic)
+# *** Just run, doesn't write build target ***
+# if local dir is mounted /yesod directry, SQLite is not work. 
+# because of problem with VM shared disk.
+# Usage:
+# $ docker run -d -p 3000:3000 -v `pwd`:/mnt:rw ynishi/yesod
+CMD cp -ar /mnt/* /yesod/ && yesod devel

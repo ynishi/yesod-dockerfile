@@ -1,0 +1,16 @@
+FROM haskell:7.8
+MAINTAINER Yutaka Nishimura
+
+#
+# stackage LTS 2.8(require GHC 7.8)
+#
+
+# 1st cabal update to make default settings in ~/.cabal
+WORKDIR /root 
+RUN ["cabal", "update"]
+
+# change remote-repo hackage to stackage
+RUN ["/bin/sed", "-i", "s/^remote-repo:/-- remote-repo:/g","/root/.cabal/config"]
+RUN ["/bin/sed", "-i", "/^-- remote-repo:/a\\remote-repo: stackage-lts-2.8:http://www.stackage.org/snapshot/lts-2.8", "/root/.cabal/config"]
+
+RUN ["cabal", "update"]
