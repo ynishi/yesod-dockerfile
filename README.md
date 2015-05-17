@@ -9,6 +9,13 @@ dockerfile for yesod docker image
 
 ### Usage
 
+#### Build Image
+
+1. remane to Dockerfile
+2. do *docker build* as you want.
+
+#### Use Image
+
 Docker image made from this dockerfile is upped to DockerHub.
 ```
 docker pull ynishi/yesod
