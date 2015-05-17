@@ -20,3 +20,7 @@ So, recommended mount target is /mnt and if yesod project dir is already exists,
 ### about Stackage image
 
 Very simple. This is for Base of large haskell project like yesod.
+
+### Licence
+
+* BSD
