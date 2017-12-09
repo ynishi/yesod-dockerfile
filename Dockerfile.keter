@@ -1,0 +1,47 @@
+FROM ynishi/yesod:latest
+MAINTAINER Yutaka Nishimura
+
+#
+# keter
+#
+
+# prepare install keter
+RUN ["apt-get", "update"]
+RUN ["apt-get", "install", "upstart", "postgresql", "-y"]
+
+# install keter
+RUN ["cabal", "update"]
+RUN ["cabal", "install", "keter"]
+
+# setup bin
+RUN ["mkdir", "-p", "/opt/keter/bin"]
+RUN ["cp", "/root/.cabal/bin/keter", "/opt/keter/bin"]
+
+# setup etc
+RUN ["mkdir", "-p", "/opt/keter/etc"]
+RUN echo "root: .. \n\
+listeners:\n\
+  - host: \"*4\"\
+" > /opt/keter/etc/keter-config.yaml
+
+# setup upstart
+RUN echo "start on (net-device-up and local-filesystems and runlevel [2345])\n\
+stop on runlevel [016]\n\
+respawn\n\
+\n\
+console none\n\
+\n\
+exec /opt/keter/bin/keter /opt/keter/etc/keter-config.yaml\
+" > /etc/init/keter.conf
+
+RUN ["start", "keter"]
+
+# setup deployment dir
+RUN ["mkdir", "-p", "/opt/keter/incoming"]
+
+WORKDIR /root
+ 
+EXPOSE 80
+
+# $ docker run -d -p 80:80 -v `pwd`/etc:/opt/keter/etc:rw -v `pwd`/build:/opt/keter/incoming:rw ynishi/keter
+CMD cp -ar /mnt/build/*.keter /opt/keter/incoming/ 

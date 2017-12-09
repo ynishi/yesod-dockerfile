@@ -1,0 +1,31 @@
+FROM debian:8.1
+MAINTAINER Yutaka Nishimura
+
+#
+# keter in stackage 2.8 on debian 8.1
+#
+
+# prepare install keter
+RUN ["apt-get", "update"]
+RUN ["apt-get", "install", "postgresql", "libgmp10", "-y"]
+
+# setup bin
+RUN ["mkdir", "-p", "/opt/keter/bin"]
+ADD keter /opt/keter/bin/
+ENV PATH /opt/kete/bin:$PATH 
+
+# setup etc
+RUN ["mkdir", "-p", "/opt/keter/etc"]
+RUN echo "root: .. \n\
+listeners:\n\
+  - host: \"*4\"\
+" > /opt/keter/etc/keter-config.yaml
+
+# setup deployment dir
+RUN ["mkdir", "-p", "/opt/keter/incoming"]
+
+WORKDIR /root
+EXPOSE 80
+
+# $ docker run -d -p 80:80 -v `pwd`:/opt/keter/incoming:rw ynishi/keter
+CMD /opt/keter/bin/keter /opt/keter/etc/keter-config.yaml
